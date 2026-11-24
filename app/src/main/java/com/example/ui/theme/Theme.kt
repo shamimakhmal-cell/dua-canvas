@@ -12,33 +12,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = GoldPrimary,
-    onPrimary = Color.Black,
-    primaryContainer = GoldDark,
-    secondary = IslamicGreenLight,
-    onSecondary = Color.White,
-    background = Color(0xFF111816),
-    surface = Color(0xFF1A2421),
-    onBackground = Color(0xFFFDFBF7),
-    onSurface = Color(0xFFFDFBF7)
+    primary = MutedIslamicGold,
+    onPrimary = DarkCharcoal,
+    primaryContainer = DarkForestGreen,
+    onPrimaryContainer = WarmIvory,
+    secondary = MutedIslamicGold,
+    onSecondary = DarkCharcoal,
+    background = DarkBackground,
+    surface = DarkCardSurface,
+    onBackground = DarkTextIvory,
+    onSurface = DarkTextIvory,
+    surfaceVariant = DarkForestGreen,
+    onSurfaceVariant = DarkTextMuted
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = IslamicGreen,
-    onPrimary = Color.White,
-    primaryContainer = GoldLight,
-    secondary = GoldPrimary,
-    onSecondary = Color.Black,
-    background = IvoryBackground,
-    surface = SurfaceCard,
-    onBackground = TextDark,
-    onSurface = TextDark
+    primary = DeepEmeraldGreen,
+    onPrimary = WarmIvory,
+    primaryContainer = WarmIvory,
+    onPrimaryContainer = DeepEmeraldGreen,
+    secondary = MutedIslamicGold,
+    onSecondary = DarkCharcoal,
+    background = WarmIvory,
+    surface = Color.White,
+    onBackground = DarkCharcoal,
+    onSurface = DarkCharcoal,
+    surfaceVariant = Color(0xFFEFECE1),
+    onSurfaceVariant = Color(0xFF4A5568)
 )
 
 @Composable
 fun DuaCanvasTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Default to Islamic theme branding
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

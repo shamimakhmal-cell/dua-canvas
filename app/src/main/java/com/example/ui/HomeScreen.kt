@@ -23,12 +23,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.DuaEntity
-import com.example.ui.theme.IslamicGreen
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.DeepEmeraldGreen
+import com.example.ui.theme.MutedIslamicGold
+import com.example.ui.theme.WarmIvory
 import com.example.viewmodel.DuaViewModel
 
-data class CategoryItem(val name: String, val icon: String)
+data class HomeCategory(val name: String, val icon: String, val queryCategory: String)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: DuaViewModel,
@@ -37,21 +39,18 @@ fun HomeScreen(
     onNavigateToPoster: (DuaEntity) -> Unit
 ) {
     val allDuas by viewModel.allDuas.collectAsState()
-    val favorites by viewModel.favoriteDuas.collectAsState()
     var selectedDetailDua by remember { mutableStateOf<DuaEntity?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     val categories = listOf(
-        CategoryItem("Daily Duas", "🤲"),
-        CategoryItem("Morning & Evening", "🌅"),
-        CategoryItem("Salah", "🕌"),
-        CategoryItem("Rizq & Debt", "💰"),
-        CategoryItem("Protection", "🛡️"),
-        CategoryItem("Forgiveness", "🤲"),
-        CategoryItem("Family", "👨‍👩‍👧"),
-        CategoryItem("Ramadan", "🌙"),
-        CategoryItem("Travel", "✈️"),
-        CategoryItem("Sleep", "💤"),
-        CategoryItem("Quranic Duas", "📖")
+        HomeCategory("Daily", "🤲", "Daily Duas"),
+        HomeCategory("Morning", "🌅", "Morning & Evening"),
+        HomeCategory("Evening", "🌙", "Morning & Evening"),
+        HomeCategory("Protection", "🛡️", "Protection"),
+        HomeCategory("Rizq", "💰", "Rizq & Debt"),
+        HomeCategory("Family", "👨‍👩‍👧", "Family"),
+        HomeCategory("Salah", "🕌", "Salah"),
+        HomeCategory("Quranic", "📖", "Quranic Duas")
     )
 
     val dailyDua = allDuas.firstOrNull { it.id == "dua_003" } ?: allDuas.firstOrNull()
@@ -60,208 +59,125 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingBottom(24.dp)
+        contentPadding = PaddingValues(bottom = 32.dp)
     ) {
-        // Header
+        // Top Section: Basmala, Greeting, Headline
         item {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(IslamicGreen, MaterialTheme.colorScheme.surface)
+                            colors = listOf(
+                                DeepEmeraldGreen,
+                                MaterialTheme.colorScheme.surface
+                            )
                         )
                     )
                     .padding(24.dp)
             ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                                color = GoldPrimary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "DuaCanvas",
-                                color = Color.White,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        IconButton(
-                            onClick = { /* Settings / Info */ },
-                            modifier = Modifier
-                                .background(Color.White.copy(alpha = 0.15f), CircleShape)
-                        ) {
-                            Icon(Icons.Default.Info, contentDescription = "Info", tint = Color.White)
-                        }
-                    }
-                }
-            }
-        }
-
-        // Dua of the Day Card
-        if (dailyDua != null) {
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clickable { selectedDetailDua = dailyDua },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Brush.linearGradient(
-                                    colors = listOf(
-                                        IslamicGreen.copy(alpha = 0.08f),
-                                        GoldPrimary.copy(alpha = 0.12f)
-                                    )
-                                )
-                            )
-                            .padding(20.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Badge(
-                                containerColor = GoldPrimary,
-                                contentColor = Color.Black
-                            ) {
-                                Text("Dua of the Day", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
-                            }
-                            IconButton(
-                                onClick = { viewModel.toggleFavorite(dailyDua) }
-                            ) {
-                                Icon(
-                                    imageVector = if (dailyDua.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                    contentDescription = "Favorite",
-                                    tint = if (dailyDua.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = dailyDua.arabic,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = dailyDua.englishMeaning,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 14.sp,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Button(
-                                onClick = { onNavigateToPoster(dailyDua) },
-                                colors = ButtonDefaults.buttonColors(containerColor = IslamicGreen),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(Icons.Default.Palette, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Create Poster")
-                            }
-                            OutlinedButton(
-                                onClick = { selectedDetailDua = dailyDua },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Read Details")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Categories Header
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 Text(
-                    text = "Categories",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                    color = MutedIslamicGold,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
                 )
-                TextButton(onClick = onNavigateToDuas) {
-                    Text("View All", color = IslamicGreen)
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Assalamu Alaikum",
+                            color = WarmIvory.copy(alpha = 0.8f),
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Your Daily Duas",
+                            color = Color.White,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(MutedIslamicGold.copy(alpha = 0.2f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MutedIslamicGold)
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Search Bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Search duas in Arabic, Bangla or English", fontSize = 13.sp) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MutedIslamicGold) },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MutedIslamicGold,
+                        unfocusedBorderColor = Color.Transparent
+                    ),
+                    singleLine = true
+                )
             }
-            Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // Categories Grid/List
+        // Quick Category Cards
         item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Quick Categories",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
             LazyRow(
-                modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(categories) { category ->
+                items(categories) { cat ->
                     Card(
                         modifier = Modifier
-                            .width(110.dp)
-                            .height(100.dp)
+                            .width(96.dp)
+                            .height(90.dp)
                             .clickable {
-                                viewModel.setSelectedCategory(category.name)
+                                viewModel.setSelectedCategory(cat.queryCategory)
                                 onNavigateToDuas()
                             },
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(12.dp),
+                                .padding(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text(text = category.icon, fontSize = 28.sp)
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = cat.icon, fontSize = 26.sp)
+                            Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = category.name,
+                                text = cat.name,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 textAlign = TextAlign.Center,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                maxLines = 1
                             )
                         }
                     }
@@ -269,69 +185,108 @@ fun HomeScreen(
             }
         }
 
-        // Popular Duas Section
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Popular Duas",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
+        // Dua of the Day Editorial Card
+        if (dailyDua != null) {
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Text(
+                        text = "Dua of the Day",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
 
-        items(allDuas.take(5)) { dua ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .clickable { selectedDetailDua = dua },
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = dua.title,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = dua.category,
-                            fontSize = 12.sp,
-                            color = GoldPrimary
-                        )
-                    }
-                    IconButton(onClick = { viewModel.toggleFavorite(dua) }) {
-                        Icon(
-                            imageVector = if (dua.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = if (dua.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(
+                                            DeepEmeraldGreen.copy(alpha = 0.05f),
+                                            MutedIslamicGold.copy(alpha = 0.1f)
+                                        )
+                                    )
+                                )
+                                .padding(20.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Badge(
+                                    containerColor = MutedIslamicGold,
+                                    contentColor = Color.Black
+                                ) {
+                                    Text(dailyDua.category, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), fontWeight = FontWeight.SemiBold)
+                                }
+                                IconButton(onClick = { viewModel.toggleFavorite(dailyDua) }) {
+                                    Icon(
+                                        imageVector = if (dailyDua.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                        contentDescription = "Favorite",
+                                        tint = if (dailyDua.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Text(
+                                text = dailyDua.arabic,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.End,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Text(
+                                text = dailyDua.englishMeaning,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 14.sp,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = { selectedDetailDua = dailyDua },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Read Dua")
+                                }
+                                Button(
+                                    onClick = { onNavigateToPoster(dailyDua) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = DeepEmeraldGreen),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(Icons.Default.Palette, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Create Poster")
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    // Dua Detail Dialog when clicked from Home
     selectedDetailDua?.let { dua ->
         DuaDetailDialog(
             dua = dua,
@@ -344,5 +299,3 @@ fun HomeScreen(
         )
     }
 }
-
-fun PaddingBottom(dp: androidx.compose.ui.unit.Dp): PaddingValues = PaddingValues(bottom = dp)
